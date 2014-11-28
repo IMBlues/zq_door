@@ -117,6 +117,7 @@ class Index:
                 exist = DataOperation.check_admin(add_name, Method.NAME)
                 if exist:
                     DataOperation.change_admin(add_name, Direction.REDUCE)
+                    self.response_and_log('magic_success')
                 elif exist is None:
                     self.response_and_log('super_magic_failed')
                 else:
@@ -148,7 +149,7 @@ class Index:
     def get_user_info(self):
         self.user_keyword = DataOperation.get_keyword(self.openid)
         self.user_name = DataOperation.get_name(self.openid)
-        self.is_admin = DataOperation.check_admin(self.openid)
+        self.is_admin = DataOperation.check_admin(self.openid, Method.OPENID)
 
     def managing(self):
         if not self.is_admin:
@@ -162,7 +163,7 @@ class Index:
         if not is_super_admin:
             self.response_and_log('permission_deny')
         else:
-            DataOperation.change_flag(self, Status.SUPER_MAGIC)
+            DataOperation.change_flag(self.openid, Status.SUPER_MAGIC)
             self.response_and_log('super_managing')
 
     def open_door_fail(self):

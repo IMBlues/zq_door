@@ -42,6 +42,19 @@ class DataOperation:
             return result[0].keyword
 
     @staticmethod
+    def check_flag(openid):
+        try:
+            result = DB.query("SELECT flag FROM user WHERE openid='" + str(openid) + "'")
+            result = list(result)
+            if len(result) == 0:
+                return None
+            else:
+                return result[0].flag
+        except Exception as ex:
+            print "change_flag:Exception:", ex
+            return False
+
+    @staticmethod
     def change_flag(openid, flag):
         try:
             DB.query("UPDATE user SET flag='" + str(flag) + "' WHERE openid='" + str(openid) + "'")
@@ -163,10 +176,10 @@ class DataOperation:
     def change_admin(name, direction):
         try:
             if direction == 0:
-                DB.query("UPDATE user SET admin=1 WHERE openid='" + str(name) + "'")
+                DB.query("UPDATE user SET admin=1 WHERE name='" + str(name) + "'")
                 return True
             elif direction == 1:
-                DB.query("UPDATE user SET admin=0 WHERE openid='" + str(name) + "'")
+                DB.query("UPDATE user SET admin=0 WHERE name='" + str(name) + "'")
                 return True
             else:
                 return False
