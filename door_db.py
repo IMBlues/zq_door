@@ -1,5 +1,5 @@
 __author__ = 'blues'
-from conf.settings import DB
+from settings import DB
 
 '''
 flag:
@@ -24,15 +24,6 @@ class DataOperation:
         pass
 
     @staticmethod
-    def check_flag(openid):
-        result = DB.query("SELECT flag FROM user WHERE openid ='" + str(openid) + "'")
-        result = list(result)
-        if len(result) == 0:
-            return None
-        else:
-            return result[0].flag
-
-    @staticmethod
     def get_name(openid):
         result = DB.query("SELECT name FROM user WHERE openid='" + str(openid) + "'")
         result = list(result)
@@ -53,10 +44,10 @@ class DataOperation:
     @staticmethod
     def change_flag(openid, flag):
         try:
-            DB.query("UPDATE user SET flag='" + flag + "' WHERE openid='" + str(openid) + "'")
+            DB.query("UPDATE user SET flag='" + str(flag) + "' WHERE openid='" + str(openid) + "'")
             return True
         except Exception as ex:
-            print "change_flag2resetting:Exception:", ex
+            print "change_flag:Exception:", ex
             return False
 
     @staticmethod
@@ -122,19 +113,27 @@ class DataOperation:
     def check_permission(name):
         try:
             result = DB.query("SELECT openid FROM user WHERE name='" + str(name) + "'")
-            if result is not None:
-                return True
-            else:
+            result = list(result)
+            if len(result) == 0:
                 return False
+            else:
+                return True
         except Exception as ex:
             print "Exception:", ex
             return False
 
     @staticmethod
-    def check_admin(openid):
+    def check_admin(content, method):
         try:
-            result = DB.query("SELECT admin FROM user WHERE openid='" + str(openid) + "'")
-            result = list(result)
+            if method == 0:
+                result = DB.query("SELECT admin FROM user WHERE openid='" + str(content) + "'")
+                result = list(result)
+            elif method == 1:
+                result = DB.query("SELECT admin FROM user WHERE name='" + str(content) + "'")
+                result = list(result)
+            else:
+                return False
+
             if len(result) == 0:
                 return None
             elif result[0].admin == 1 or result[0].admin == 2:
@@ -143,4 +142,34 @@ class DataOperation:
                 return False
         except Exception as ex:
             print "Exception:", ex
+            return False
+
+    @staticmethod
+    def check_super_admin(openid):
+        try:
+            result = DB.query("SELECT admin FROM user WHERE openid='" + str(openid) + "'")
+            result = list(result)
+            if len(result) == 0:
+                return None
+            elif result[0].admin == 2:
+                return True
+            else:
+                return False
+        except Exception as ex:
+            print "Exception:", ex
+            return False
+
+    @staticmethod
+    def change_admin(name, direction):
+        try:
+            if direction == 0:
+                DB.query("UPDATE user SET admin=1 WHERE openid='" + str(name) + "'")
+                return True
+            elif direction == 1:
+                DB.query("UPDATE user SET admin=0 WHERE openid='" + str(name) + "'")
+                return True
+            else:
+                return False
+        except Exception as ex:
+            print "change_flag:Exception:", ex
             return False

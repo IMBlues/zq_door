@@ -2,8 +2,9 @@
 def enum(**enums):
     return type('Enum', (), enums)
 
-Status = enum(READY=0, RESETTING=1, REGISTERING=2, MANAGERING=3, MAGIC=4)
+Status = enum(READY=0, RESETTING=1, REGISTERING=2, MANAGING=3, MAGIC=4, SUPER_MAGIC=5)
 Method = enum(OPENID=0, NAME=1)
+Direction = enum(PROMOTE=0, REDUCE=1)
 
 keyword = {
     'reset': u'我需要全新的咒语',
@@ -11,6 +12,7 @@ keyword = {
     'default_key': u'芝麻开门',
     'default_name': u'我叫小强',
     'manage': u'我可是个高级魔法师',
+    'super_manage': u'我可是个超级魔法师'
 }
 
 reply = {
@@ -29,7 +31,10 @@ reply = {
     'manage_magic_1': u'输入你许可的魔法师姓名(请将姓名填写正确，这关乎他是否能进入魔法世界)',
     'manage_magic_2': u'输入你要删除许可的魔法师姓名(请将姓名填写正确，填错了可删除不了)',
     'choose_magic_failed': u'魔法释放失败，你选择你还不会的魔法:(',
-    'magic_success': u'施法成功'
+    'magic_success': u'施法成功',
+    'super_managing': u'变身超级魔法师',
+    'super_magic_success': u'你要把谁变成或降级高级魔法师？(已经是高级的再次输入就会降级，不是高级会提升为高级)',
+    'super_magic_failed': u'诶，不太对劲..'
 }
 
 log_text = {
@@ -41,11 +46,14 @@ log_text = {
     'registered': u'已注册',
     'permission_deny': u'试图变成高级魔法师失败',
     'managing': u'变身成高级魔法师',
+    'super_managing': u'变身超级魔法师',
     'register_failed': u'试图注册失败',
     'manage_magic_1': u'准备许可新的魔法师',
     'manage_magic_2': u'准备删除已许可的魔法师',
     'choose_magic_failed': u'魔法选择失败',
-    'magic_success': u'施法成功'
+    'magic_success': u'施法成功',
+    'super_magic_success': u'超级施法成功',
+    'super_magic_failed': u'超级施法失败',
 }
 
 

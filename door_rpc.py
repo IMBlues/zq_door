@@ -1,6 +1,6 @@
 import xmlrpclib
 
-from conf.settings import SERVICE_PORT, SERVICE_NAME, SERVICE_HOST
+from settings import SERVICE_PORT, SERVICE_NAME, SERVICE_HOST
 
 
 url = "http://%s:%s/%s" % (SERVICE_HOST, SERVICE_PORT, SERVICE_NAME)

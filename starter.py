@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import web
-import door_rpc
-import door_log
-from door_keyword import keyword, reply, log_text, Status, Method
-from door_db import DataOperation
 from wechat_sdk import WechatBasic
-from conf.settings import TOKEN
+
+import door_log
+from door_keyword import keyword, reply, log_text, Status, Method, Direction
+from door_db import DataOperation
+from settings import TOKEN
+
 
 urls = (
     '/', 'Index'
@@ -26,6 +27,7 @@ class Index:
         self.result = 0
         self.user_name = ''
         self.user_keyword = ''
+        self.is_super_admin = False
         pass
 
     def GET(self):
@@ -68,6 +70,8 @@ class Index:
                     self.open_door_success()
                 elif cmp(self.message.content, keyword['manage']) == 0:
                     self.managing()
+                elif cmp(self.message.content, keyword['super_manage']) == 0:
+                    self.super_managing()
                 else:
                     self.open_door_fail()
 
@@ -90,9 +94,9 @@ class Index:
             #manage status and ready to receive the command
             elif self.result == 3:
                 self.get_user_info()
-                if self.message.content == 1:
+                if self.message.content == u'1':
                     self.choose_magic_1()
-                elif self.message.content == 2:
+                elif self.message.content == u'2':
                     self.choose_magic_2()
                 else:
                     self.choose_magic_fail()
@@ -101,11 +105,25 @@ class Index:
             elif self.result == 4:
                 add_name = self.message.content
                 exist = DataOperation.check_permission(add_name)
-                if exist is True:
+                if exist:
                     DataOperation.delete_user_temp(add_name, Method.NAME)
                 else:
                     DataOperation.add_user(add_name, keyword['default_key'])
+                DataOperation.change_flag(self.openid, Status.READY)
                 self.response_and_log('magic_success')
+
+            elif self.result == 5:
+                add_name = self.message.content
+                exist = DataOperation.check_admin(add_name, Method.NAME)
+                if exist:
+                    DataOperation.change_admin(add_name, Direction.REDUCE)
+                elif exist is None:
+                    self.response_and_log('super_magic_failed')
+                else:
+                    DataOperation.change_admin(add_name, Direction.PROMOTE)
+                    self.response_and_log('magic_success')
+
+                DataOperation.change_flag(self.openid, Status.READY)
 
             #initial status
             elif self.result is None:
@@ -139,6 +157,14 @@ class Index:
             DataOperation.change_flag(self.openid, Status.MANAGING)
             self.response_and_log('managing')
 
+    def super_managing(self):
+        is_super_admin = DataOperation.check_super_admin(self.openid)
+        if not is_super_admin:
+            self.response_and_log('permission_deny')
+        else:
+            DataOperation.change_flag(self, Status.SUPER_MAGIC)
+            self.response_and_log('super_managing')
+
     def open_door_fail(self):
         self.response_and_log('open_failed')
 
@@ -168,9 +194,6 @@ class Index:
     def rejecting(self):
         self.response = self.wechat.response_text(reply['rejected'])
 
-    def manage(self):
-        pass
-
     def check_permission(self):
         result = DataOperation.check_permission(self.message.content)
         if result is None:
@@ -179,9 +202,11 @@ class Index:
 
     def choose_magic_1(self):
         self.response_and_log('manage_magic_1')
+        DataOperation.change_flag(self.openid, Status.MAGIC)
 
     def choose_magic_2(self):
         self.response_and_log('manage_magic_2')
+        DataOperation.change_flag(self.openid, Status.MAGIC)
 
     def choose_magic_fail(self):
         self.response_and_log('choose_magic_failed')
