@@ -96,7 +96,15 @@ class DataOperation:
             if method == 0:
                 DB.query("DELETE FROM user WHERE openid='" + str(content) + "'")
             elif method == 1:
-                DB.query("DELETE FROM user WHERE name='" + str(content) + "'")
+                result = DB.query("SELECT openid FROM user WHERE name='" + str(content) + "'")
+                result = list(result)
+                if len(result) == 0:
+                    return None
+                elif result[0].openid == u'#':
+                    DB.query("DELETE FROM user WHERE name='" + str(content) + "'")
+                    return True
+                else:
+                    return False
             else:
                 return False
             return True

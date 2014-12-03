@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import web
 from wechat_sdk import WechatBasic
-
+import door_rpc
 import door_log
 from door_keyword import keyword, reply, log_text, Status, Method, Direction
 from door_db import DataOperation
@@ -143,7 +143,7 @@ class Index:
         self.response_and_log('resetting')
 
     def open_door_success(self):
-        #door_rpc.open_door()
+        door_rpc.open_door()
         self.response_and_log('open_success')
 
     def get_user_info(self):
@@ -211,6 +211,7 @@ class Index:
 
     def choose_magic_fail(self):
         self.response_and_log('choose_magic_failed')
+        DataOperation.change_flag(self.openid, Status.READY)
 
     def response_and_log(self, content):
         self.response = self.wechat.response_text(reply[content])
